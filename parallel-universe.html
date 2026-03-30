@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>我们的平行时空</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#FFB6C1">
+    <meta name="description" content="一个属于我们的模拟经营游戏">
+    
+    <!-- Apple iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="平行时空">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        body {
+            background: #FFF9F5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        .heart-button {
+            transition: transform 0.1s ease;
+            touch-action: manipulation;
+        }
+        
+        .heart-button:active {
+            transform: scale(0.92);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(255, 182, 193, 0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .card:active {
+            transform: scale(0.98);
+        }
+        
+        .modal {
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.4);
+        }
+        
+        .modal-content {
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        .tab-active {
+            background: #FFB6C1;
+            color: white;
+        }
+        
+        .tab-inactive {
+            background: white;
+            color: #888;
+        }
+        
+        .floating-heart {
+            position: fixed;
+            animation: floatUp 2s ease-out forwards;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-150px) scale(0.5);
+            }
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease;
+            background: linear-gradient(90deg, #FFB6C1, #FFC0CB);
+            border-radius: 10px;
+        }
+        
+        .badge {
+            background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes shine {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        .shine-effect {
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            background-size: 200% 100%;
+            animation: shine 3s infinite;
+        }
+        
+        .achievement-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .achievement-badge::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #fff 0%, #fff9f5 100%);
+        }
+        
+        .theme-dark {
+            background: #1a1a2e !important;
+        }
+        
+        .theme-dark .card {
+            background: #16213e !important;
+            color: white !important;
+        }
+        
+        .theme-dark h1, .theme-dark h3, .theme-dark h4 {
+            color: white !important;
+        }
+        
+        .theme-dark .text-gray-800 {
+            color: #e0e0e0 !important;
+        }
+        
+        .theme-dark .text-gray-600 {
+            color: #b0b0b0 !important;
+        }
+        
+        .theme-dark .text-gray-500 {
+            color: #909090 !important;
+        }
+        
+        .theme-dark .bg-white\/80 {
+            background: rgba(22, 33, 62, 0.8) !important;
+        }
+        
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: confetti 3s ease-out forwards;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10%, 30% { transform: scale(0.9); }
+            20%, 40% { transform: scale(1.1); }
+        }
+        
+        .heartbeat {
+            animation: heartbeat 1s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 182, 193, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 182, 193, 0.8), 0 0 30px rgba(255, 182, 193, 0.6); }
+        }
+        
+        .glow-effect {
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        
+        .wiggle {
+            animation: wiggle 0.5s ease-in-out;
+        }
+        
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+        
+        .rainbow-effect {
+            animation: rainbow 3s linear infinite;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+        }
+        
+        @keyframes float-up {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-100px) scale(0.5); opacity: 0; }
+        }
+        
+        .particle {
+            animation: float-up 2s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen pb-20">
+    
+    <!-- Header -->
+    <div class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-pink-100" style="padding-top: env(safe-area-inset-top);">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">我们的平行时空</h1>
+                    <p class="text-sm text-gray-500 mt-1">与你共度的每一秒 ♡</p>
+                </div>
+                <div class="text-right">
+                    <div class="flex items-center gap-2 justify-end">
+                        <i data-lucide="heart" class="w-5 h-5 text-pink-400"></i>
+                        <span class="text-2xl font-bold text-pink-500" id="total-hearts">0</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        <span id="hearts-per-second">0</span>/秒
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="px-6 py-6">
+        
+        <!-- Heart Button Section -->
+        <div class="card p-8 mb-6 text-center">
+            <button id="heart-btn" class="heart-button mx-auto">
+                <div class="relative inline-block">
+                    <div class="absolute inset-0 bg-pink-300 rounded-full blur-2xl opacity-50"></div>
+                    <div class="relative w-32 h-32 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg float-animation">
+                        <i data-lucide="heart" class="w-16 h-16 text-white fill-white"></i>
+                    </div>
+                </div>
+            </button>
+            <p class="text-gray-600 mt-4 text-sm">点击爱心，积累我们的回忆</p>
+            <div class="mt-3">
+                <span class="badge" id="click-value">+1</span>
+                <div id="combo-display" class="mt-2 text-orange-500 font-bold text-sm hidden"></div>
+            </div>
+        </div>
+        
+        <!-- Settings Button -->
+        <div class="flex justify-end mb-4">
+            <button id="settings-btn" class="card px-4 py-2 flex items-center gap-2">
+                <i data-lucide="settings" class="w-4 h-4 text-gray-600"></i>
+                <span class="text-sm text-gray-600">设置</span>
+            </button>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="grid grid-cols-2 gap-2 mb-6">
+            <button class="tab-btn py-3 rounded-full font-semibold transition-all tab-active" data-tab="shop">
+                <i data-lucide="shopping-bag" class="w-4 h-4 inline mr-1"></i>
+                场景装饰
+            </button>
+            <button class="tab-btn py-3 rounded-full font-semibold transition-all tab-inactive" data-tab="collections">
+                <i data-lucide="book-heart" class="w-4 h-4 inline mr-1"></i>
+                回忆相册
+            </button>
+            <button class="tab-btn py-3 rounded-full font-semibold transition-all tab-inactive" data-tab="rewards">
+                <i data-lucide="gift" class="w-4 h-4 inline mr-1"></i>
+                兑换店
+            </button>
+            <button class="tab-btn py-3 rounded-full font-semibold transition-all tab-inactive" data-tab="achievements">
+                <i data-lucide="trophy" class="w-4 h-4 inline mr-1"></i>
+                成就
+            </button>
+            <button class="tab-btn py-3 rounded-full font-semibold transition-all tab-inactive" data-tab="stats">
+                <i data-lucide="bar-chart" class="w-4 h-4 inline mr-1"></i>
+                统计
+            </button>
+            <button class="tab-btn py-3 rounded-full font-semibold transition-all tab-inactive" data-tab="daily">
+                <i data-lucide="calendar-check" class="w-4 h-4 inline mr-1"></i>
+                签到
+            </button>
+            <button class="tab-btn py-3 rounded-full font-semibold transition-all tab-inactive" data-tab="upgrades">
+                <i data-lucide="zap" class="w-4 h-4 inline mr-1"></i>
+                升级
+            </button>
+            <button class="tab-btn py-3 rounded-full font-semibold transition-all tab-inactive" data-tab="events">
+                <i data-lucide="star" class="w-4 h-4 inline mr-1"></i>
+                事件
+            </button>
+        </div>
+        
+        <!-- Shop Tab -->
+        <div id="shop-tab" class="tab-content">
+            <div class="space-y-4" id="shop-items"></div>
+        </div>
+        
+        <!-- Collections Tab -->
+        <div id="collections-tab" class="tab-content hidden">
+            <div class="space-y-4" id="collections-list"></div>
+        </div>
+        
+        <!-- Rewards Tab -->
+        <div id="rewards-tab" class="tab-content hidden">
+            <div class="space-y-4" id="rewards-list"></div>
+        </div>
+        
+        <!-- Achievements Tab -->
+        <div id="achievements-tab" class="tab-content hidden">
+            <div class="space-y-4" id="achievements-list"></div>
+        </div>
+        
+        <!-- Stats Tab -->
+        <div id="stats-tab" class="tab-content hidden">
+            <div class="space-y-4" id="stats-content"></div>
+        </div>
+        
+        <!-- Daily Tab -->
+        <div id="daily-tab" class="tab-content hidden">
+            <div class="space-y-4" id="daily-content"></div>
+        </div>
+        
+        <!-- Upgrades Tab -->
+        <div id="upgrades-tab" class="tab-content hidden">
+            <div class="space-y-4" id="upgrades-list"></div>
+        </div>
+        
+        <!-- Events Tab -->
+        <div id="events-tab" class="tab-content hidden">
+            <div class="space-y-4" id="events-content"></div>
+        </div>
+        
+    </div>
+    
+    <!-- Modal -->
+    <div id="modal" class="modal fixed inset-0 z-50 hidden items-center justify-center p-6">
+        <div class="modal-content card max-w-md w-full p-8 text-center">
+            <div class="w-20 h-20 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="sparkles" class="w-10 h-10 text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-3" id="modal-title"></h3>
+            <p class="text-gray-600 leading-relaxed mb-6" id="modal-text"></p>
+            <button id="modal-close" class="w-full py-3 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-full font-semibold">
+                继续我们的故事
+            </button>
+        </div>
+    </div>
+    
+    <!-- Coupon Modal -->
+    <div id="coupon-modal" class="modal fixed inset-0 z-50 hidden items-center justify-center p-6">
+        <div class="modal-content card max-w-md w-full p-8">
+            <div class="text-center mb-6">
+                <div class="w-20 h-20 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="ticket" class="w-10 h-10 text-white"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">兑换成功！</h3>
+                <p class="text-sm text-gray-500">请截图保存此券</p>
+            </div>
+            
+            <div class="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-6 mb-6">
+                <div class="text-center mb-4">
+                    <div class="text-3xl mb-2" id="coupon-emoji">🎁</div>
+                    <h4 class="text-xl font-bold text-gray-800" id="coupon-name"></h4>
+                    <p class="text-sm text-gray-600 mt-2" id="coupon-desc"></p>
+                </div>
+                
+                <div class="border-t-2 border-dashed border-pink-300 pt-4 mt-4">
+                    <div class="flex justify-between items-center text-xs text-gray-500 mb-2">
+                        <span>兑换码</span>
+                        <span id="coupon-date"></span>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 text-center">
+                        <code class="text-lg font-mono font-bold text-pink-600" id="coupon-code"></code>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="coupon-close" class="w-full py-3 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-full font-semibold">
+                知道了
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('install', (e) => {
+                    self.skipWaiting();
+                });
+                
+                self.addEventListener('activate', (e) => {
+                    self.clients.claim();
+                });
+            `;
+            
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl).catch(() => {});
+        }
+        
+        // Create manifest dynamically
+        const manifest = {
+            "name": "我们的平行时空",
+            "short_name": "平行时空",
+            "description": "一个属于我们的模拟经营游戏",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#FFF9F5",
+            "theme_color": "#FFB6C1",
+            "orientation": "portrait",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23FFB6C1' rx='100'/%3E%3Cpath fill='white' d='M256 448l-30.164-27.211C143.008 345.887 96 303.52 96 250.5c0-42.5 33.184-75.5 75.5-75.5 24.147 0 47.315 11.693 62.5 30.096C249.185 186.693 272.353 175 296.5 175c42.316 0 75.5 33 75.5 75.5 0 53.02-47.008 95.387-129.836 170.289z' transform='translate(0 20)'/%3E%3C/svg%3E",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml"
+                }
+            ]
+        };
+        
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestUrl = URL.createObjectURL(manifestBlob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestUrl;
+        document.head.appendChild(link);
+        
+        // Add apple-touch-icon
+        const appleIcon = document.createElement('link');
+        appleIcon.rel = 'apple-touch-icon';
+        appleIcon.href = manifest.icons[0].src;
+        document.head.appendChild(appleIcon);
+        
+        // Game State
+        let gameState = {
+            hearts: 0,
+            totalHearts: 0,
+            clickValue: 1,
+            clickMultiplier: 1,
+            dps: 0,
+            dpsMultiplier: 1,
+            items: {},
+            upgrades: {},
+            unlockedCollections: [],
+            redeemedRewards: [],
+            achievements: [],
+            totalClicks: 0,
+            playTime: 0,
+            lastLogin: null,
+            loginStreak: 0,
+            dailyCheckins: [],
+            specialEvents: [],
+            maxHearts: 0,
+            fastestClick: 0
+        };
+        
+        // Shop Items
+        const shopItems = [
+            {
+                id: 'carpet',
+                name: '温馨地毯',
+                icon: 'home',
+                desc: '让我们的小家更温暖',
+                baseCost: 100,
+                baseDps: 1,
+                owned: 0
+            },
+            {
+                id: 'sofa',
+                name: '舒适沙发',
+                icon: 'armchair',
+                desc: '一起窝在沙发看电影',
+                baseCost: 500,
+                baseDps: 5,
+                owned: 0
+            },
+            {
+                id: 'piano',
+                name: '雅马哈钢琴',
+                icon: 'music',
+                desc: '小唔会一直为你弹琴',
+                baseCost: 1000,
+                baseDps: 15,
+                owned: 0
+            },
+            {
+                id: 'bookshelf',
+                name: '温馨书架',
+                icon: 'book',
+                desc: '收藏我们一起读过的书',
+                baseCost: 2500,
+                baseDps: 40,
+                owned: 0
+            },
+            {
+                id: 'lab',
+                name: 'AI 实验室',
+                icon: 'cpu',
+                desc: '正在自动优化我们的恋爱 PRD',
+                baseCost: 5000,
+                baseDps: 80,
+                owned: 0
+            },
+            {
+                id: 'garden',
+                name: '空中花园',
+                icon: 'flower-2',
+                desc: '每朵花都在见证我们的爱',
+                baseCost: 10000,
+                baseDps: 150,
+                owned: 0
+            },
+            {
+                id: 'telescope',
+                name: '天文望远镜',
+                icon: 'telescope',
+                desc: '一起数星星的浪漫夜晚',
+                baseCost: 25000,
+                baseDps: 300,
+                owned: 0
+            },
+            {
+                id: 'time-machine',
+                name: '时光机',
+                icon: 'clock',
+                desc: '穿梭时空，永远在一起',
+                baseCost: 50000,
+                baseDps: 600,
+                owned: 0
+            },
+            {
+                id: 'fountain',
+                name: '许愿喷泉',
+                icon: 'droplets',
+                desc: '每个愿望都与你有关',
+                baseCost: 100000,
+                baseDps: 1200,
+                owned: 0
+            },
+            {
+                id: 'aurora',
+                name: '极光观测站',
+                icon: 'sparkles',
+                desc: '最美的风景是和你在一起',
+                baseCost: 250000,
+                baseDps: 2500,
+                owned: 0
+            },
+            {
+                id: 'castle',
+                name: '梦幻城堡',
+                icon: 'castle',
+                desc: '你就是我的公主',
+                baseCost: 500000,
+                baseDps: 5000,
+                owned: 0
+            },
+            {
+                id: 'spaceship',
+                name: '时空飞船',
+                icon: 'rocket',
+                desc: '穿梭于不同的时空维度',
+                baseCost: 1000000,
+                baseDps: 10000,
+                owned: 0
+            },
+            {
+                id: 'universe',
+                name: '平行宇宙',
+                icon: 'globe',
+                desc: '创造属于我们的宇宙',
+                baseCost: 5000000,
+                baseDps: 50000,
+                owned: 0
+            },
+            {
+                id: 'quantum',
+                name: '量子纠缠',
+                icon: 'zap',
+                desc: '心有灵犀，无论距离',
+                baseCost: 10000000,
+                baseDps: 100000,
+                owned: 0
+            },
+            {
+                id: 'eternity',
+                name: '永恒之约',
+                icon: 'infinity',
+                desc: '超越时空的承诺',
+                baseCost: 50000000,
+                baseDps: 500000,
+                owned: 0
+            },
+            {
+                id: 'destiny',
+                name: '命运红线',
+                icon: 'heart-handshake',
+                desc: '注定相遇的两个人',
+                baseCost: 100000000,
+                baseDps: 1000000,
+                owned: 0
+            }
+        ];
+        
+        // Collections
+        const collections = [
+            {
+                threshold: 520,
+                title: '初遇',
+                text: '520 颗爱心，就像我们初次相遇的那天。你的笑容，让整个世界都变得温柔。',
+                emoji: '🌸'
+            },
+            {
+                threshold: 1314,
+                title: '一生一世',
+                text: '1314 颗爱心，代表着我想和你一生一世。无论平行时空有多少个，我都想在每一个里找到你。',
+                emoji: '💕'
+            },
+            {
+                threshold: 3344,
+                title: '生生世世',
+                text: '3344 颗爱心，生生世世都想和你在一起。你是我此生最美的遇见。',
+                emoji: '💖'
+            },
+            {
+                threshold: 5200,
+                title: '爱你不变',
+                text: '5200 颗爱心，我对你的爱永远不会改变。感谢你出现在我的生命里。',
+                emoji: '💗'
+            },
+            {
+                threshold: 9999,
+                title: '长长久久',
+                text: '9999 颗爱心，愿我们的爱长长久久。每一天都想和你一起度过。',
+                emoji: '💝'
+            },
+            {
+                threshold: 5201314,
+                title: '我爱你一生一世',
+                text: '5201314 颗爱心！这是一个特殊的数字，代表着"我爱你一生一世"。你是我此生最大的幸运，也是我永远的爱。',
+                emoji: '💞'
+            },
+            {
+                threshold: 10000000,
+                title: '千万分的爱',
+                text: '10000000 颗爱心！一千万！我们的爱已经达到了难以置信的高度。每一个数字都是我对你的承诺，每一颗心都代表着永恒的陪伴。',
+                emoji: '🌌'
+            },
+            {
+                threshold: 99999999,
+                title: '天长地久',
+                text: '99999999 颗爱心！接近一亿的爱意，象征着天长地久、永不分离。在这个平行时空里，在任何时空里，我都会一直爱你。',
+                emoji: '♾️'
+            },
+            {
+                threshold: 13140,
+                title: '一生一世爱你',
+                text: '13140 颗爱心，一生一世只爱你一个。你是我的唯一，也是我的永远。',
+                emoji: '💞'
+            },
+            {
+                threshold: 25000,
+                title: '爱你两万五',
+                text: '25000 颗爱心！我对你的爱已经无法用数字衡量。谢谢你愿意和我一起经营这个小小的平行时空。',
+                emoji: '🌟'
+            },
+            {
+                threshold: 52000,
+                title: '无限的爱',
+                text: '52000 颗爱心！在这个平行时空里，我们已经创造了无数美好的回忆。未来的每一天，我都想和你一起度过。我爱你，永远爱你。',
+                emoji: '✨'
+            },
+            {
+                threshold: 100000,
+                title: '十万分的爱意',
+                text: '100000 颗爱心！！！你真的太棒了！我们的爱已经超越了所有维度。在这个平行时空，在任何平行时空，我都只想和你在一起。谢谢你，我的女孩。',
+                emoji: '🎆'
+            },
+            {
+                threshold: 200000,
+                title: '爱的进化',
+                text: '200000 颗爱心！我们的爱已经进化到新的阶段。每一天都因为有你而变得特别。',
+                emoji: '🌟'
+            },
+            {
+                threshold: 500000,
+                title: '永恒的承诺',
+                text: '500000 颗爱心！半百万的爱意，象征着我对你永恒的承诺。无论未来怎样，我都会一直爱你。',
+                emoji: '💍'
+            },
+            {
+                threshold: 1000000,
+                title: '百万星辉',
+                text: '1000000 颗爱心！！！一百万！你居然做到了！我们的爱像星辰一样璀璨，照亮彼此的生命。我爱你，超过一百万次心跳。',
+                emoji: '✨'
+            }
+        ];
+        
+        // Achievements
+        const achievements = [
+            { id: 'first_click', name: '初次心动', desc: '点击爱心第一次', icon: '💗', condition: () => gameState.totalClicks >= 1 },
+            { id: 'click_100', name: '百发百中', desc: '累计点击 100 次', icon: '💯', condition: () => gameState.totalClicks >= 100 },
+            { id: 'click_1000', name: '千锤百炼', desc: '累计点击 1000 次', icon: '🎯', condition: () => gameState.totalClicks >= 1000 },
+            { id: 'hearts_10k', name: '爱心大户', desc: '累计获得 10000 爱心', icon: '💝', condition: () => gameState.totalHearts >= 10000 },
+            { id: 'hearts_100k', name: '爱心富豪', desc: '累计获得 100000 爱心', icon: '💎', condition: () => gameState.totalHearts >= 100000 },
+            { id: 'buy_first', name: '初次装扮', desc: '购买第一个场景装饰', icon: '🏠', condition: () => Object.keys(gameState.items).length > 0 },
+            { id: 'buy_10', name: '装修达人', desc: '购买 10 个场景装饰', icon: '🏡', condition: () => Object.values(gameState.items).reduce((a, b) => a + b, 0) >= 10 },
+            { id: 'dps_100', name: '自动化初级', desc: '每秒产出达到 100', icon: '⚡', condition: () => gameState.dps >= 100 },
+            { id: 'dps_1000', name: '自动化专家', desc: '每秒产出达到 1000', icon: '🚀', condition: () => gameState.dps >= 1000 },
+            { id: 'collection_5', name: '回忆收藏家', desc: '解锁 5 个回忆', icon: '📖', condition: () => gameState.unlockedCollections.length >= 5 },
+            { id: 'redeem_first', name: '首次兑换', desc: '兑换第一张券', icon: '🎟️', condition: () => gameState.redeemedRewards.length > 0 },
+            { id: 'redeem_10', name: '兑换达人', desc: '兑换 10 张券', icon: '🎫', condition: () => gameState.redeemedRewards.length >= 10 },
+            { id: 'login_7', name: '七日之约', desc: '连续登录 7 天', icon: '📅', condition: () => gameState.loginStreak >= 7 },
+            { id: 'login_30', name: '长相厮守', desc: '连续登录 30 天', icon: '🗓️', condition: () => gameState.loginStreak >= 30 },
+            { id: 'playtime_1h', name: '初级玩家', desc: '游戏时长达到 1 小时', icon: '⏰', condition: () => gameState.playTime >= 3600 },
+            { id: 'playtime_10h', name: '资深玩家', desc: '游戏时长达到 10 小时', icon: '⏳', condition: () => gameState.playTime >= 36000 },
+            { id: 'all_items', name: '全场景收集', desc: '购买所有场景装饰', icon: '🏆', condition: () => shopItems.every(item => item.owned > 0) },
+            { id: 'rich', name: '财富自由', desc: '拥有 50000 爱心', icon: '💰', condition: () => gameState.hearts >= 50000 },
+            { id: 'speed', name: '快手玩家', desc: '30 秒内点击 100 次', icon: '⚡', condition: () => false },
+            { id: 'lucky', name: '幸运儿', desc: '触发隐藏彩蛋', icon: '🍀', condition: () => gameState.luckyFound || false },
+            { id: 'millionaire', name: '百万富翁', desc: '累计获得 1000000 爱心', icon: '👑', condition: () => gameState.totalHearts >= 1000000 },
+            { id: 'click_master', name: '点击大师', desc: '累计点击 10000 次', icon: '👏', condition: () => gameState.totalClicks >= 10000 },
+            { id: 'max_rich', name: '工资峰值', desc: '同时拥有 100000 爱心', icon: '💸', condition: () => gameState.maxHearts >= 100000 },
+            { id: 'collector', name: '全成就收集', desc: '解锁所有其他成就', icon: '🎯', condition: () => gameState.achievements.length >= achievements.length - 1 },
+            { id: 'upgrader', name: '升级大师', desc: '购买 5 个升级', icon: '⚡', condition: () => Object.keys(gameState.upgrades).length >= 5 },
+            { id: 'all_upgrades', name: '全升级收集', desc: '购买所有升级', icon: '🌈', condition: () => Object.keys(gameState.upgrades).length >= upgrades.length },
+            { id: 'super_rich', name: '超级富豪', desc: '同时拥有 500000 爱心', icon: '👑', condition: () => gameState.maxHearts >= 500000 },
+            { id: 'devotion', name: '忠诚玩家', desc: '连续登录 100 天', icon: '💎', condition: () => gameState.loginStreak >= 100 },
+            { id: 'master_clicker', name: '点击宗师', desc: '累计点击 50000 次', icon: '🏅', condition: () => gameState.totalClicks >= 50000 },
+            { id: 'love_overflow', name: '爱意满溢', desc: '累计获得 10000000 爱心', icon: '🌊', condition: () => gameState.totalHearts >= 10000000 }
+        ];
+        
+        // Rewards
+        const rewards = [
+            {
+                id: 'dishes',
+                name: '洗碗券',
+                icon: '🍽️',
+                desc: '免洗碗一次（可叠加）',
+                cost: 2000
+            },
+            {
+                id: 'food',
+                name: '深夜外卖券',
+                icon: '🍜',
+                desc: '任意时间点外卖一次',
+                cost: 3000
+            },
+            {
+                id: 'shopping',
+                name: '清空购物车券',
+                icon: '🛒',
+                desc: '购物车内物品全部买单',
+                cost: 10000
+            },
+            {
+                id: 'movie',
+                name: '电影约会券',
+                icon: '🎬',
+                desc: '包场看电影+爆米花可乐',
+                cost: 5000
+            },
+            {
+                id: 'massage',
+                name: '按摩服务券',
+                icon: '💆',
+                desc: '专业按摩服务 30 分钟',
+                cost: 4000
+            },
+            {
+                id: 'breakfast',
+                name: '爱心早餐券',
+                icon: '🥞',
+                desc: '精心准备的爱心早餐',
+                cost: 1500
+            },
+            {
+                id: 'travel',
+                name: '周末旅行券',
+                icon: '✈️',
+                desc: '想去哪就去哪',
+                cost: 20000
+            },
+            {
+                id: 'spa',
+                name: 'SPA 护理券',
+                icon: '💆‍♀️',
+                desc: '豪华 SPA 全套服务',
+                cost: 8000
+            },
+            {
+                id: 'jewelry',
+                name: '珠宝礼物券',
+                icon: '💍',
+                desc: '选一件喜欢的珠宝',
+                cost: 50000
+            },
+            {
+                id: 'concert',
+                name: '演唱会门票',
+                icon: '🎤',
+                desc: '喜欢的明星演唱会',
+                cost: 15000
+            },
+            {
+                id: 'surprise',
+                name: '神秘惊喜券',
+                icon: '🎁',
+                desc: '??? 打开才知道',
+                cost: 100000
+            }
+        ];
+        
+        // Upgrades system
+        const upgrades = [
+            { id: 'click_1', name: '黄金指尖', desc: '点击+1', icon: '👆', cost: 1000, effect: () => { gameState.clickValue += 1; }, req: () => true },
+            { id: 'click_2', name: '爱心翻倍', desc: '点击x2', icon: '💫', cost: 5000, effect: () => { gameState.clickMultiplier *= 2; }, req: () => gameState.upgrades['click_1'] },
+            { id: 'click_3', name: '爱意涌动', desc: '点击+5', icon: '✨', cost: 15000, effect: () => { gameState.clickValue += 5; }, req: () => gameState.upgrades['click_2'] },
+            { id: 'click_4', name: '超级倍增', desc: '点击x3', icon: '🌟', cost: 50000, effect: () => { gameState.clickMultiplier *= 3; }, req: () => gameState.upgrades['click_3'] },
+            { id: 'dps_1', name: '自动化初级', desc: '产出+10%', icon: '⚙️', cost: 2000, effect: () => { gameState.dpsMultiplier *= 1.1; calculateDPS(); }, req: () => true },
+            { id: 'dps_2', name: '效率提升', desc: '产出+25%', icon: '🔧', cost: 10000, effect: () => { gameState.dpsMultiplier *= 1.25; calculateDPS(); }, req: () => gameState.upgrades['dps_1'] },
+            { id: 'dps_3', name: '生产革命', desc: '产出x2', icon: '🏭', cost: 30000, effect: () => { gameState.dpsMultiplier *= 2; calculateDPS(); }, req: () => gameState.upgrades['dps_2'] },
+            { id: 'dps_4', name: '终极进化', desc: '产出x5', icon: '🚀', cost: 100000, effect: () => { gameState.dpsMultiplier *= 5; calculateDPS(); }, req: () => gameState.upgrades['dps_3'] },
+            { id: 'special_1', name: '幸运加持', desc: '事件触发率提升', icon: '🍀', cost: 20000, effect: () => { gameState.luckyBonus = true; }, req: () => true },
+            { id: 'special_2', name: '时光祝福', desc: '离线收益', icon: '⏰', cost: 25000, effect: () => { gameState.offlineBonus = true; }, req: () => true },
+            { id: 'ultimate', name: '永恒之爱', desc: '全x10', icon: '💖', cost: 500000, effect: () => { gameState.clickMultiplier *= 10; gameState.dpsMultiplier *= 10; calculateDPS(); }, req: () => Object.keys(gameState.upgrades).length >= 8 }
+        ];
+        
+        // Load game state
+        function loadGame() {
+            const saved = localStorage.getItem('parallelUniverseGame');
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                gameState = { ...gameState, ...loaded };
+                
+                // Restore shop items owned count
+                shopItems.forEach(item => {
+                    if (gameState.items[item.id]) {
+                        item.owned = gameState.items[item.id];
+                    }
+                });
+                
+                calculateDPS();
+                updateUI();
+            }
+        }
+        
+        // Save game state
+        function saveGame() {
+            localStorage.setItem('parallelUniverseGame', JSON.stringify(gameState));
+        }
+        
+        // Calculate DPS
+        function calculateDPS() {
+            gameState.dps = 0;
+            shopItems.forEach(item => {
+                if (item.owned > 0) {
+                    gameState.dps += item.baseDps * item.owned;
+                }
+            });
+            // Apply multipliers
+            gameState.dps *= gameState.dpsMultiplier;
+            
+            // Track max DPS
+            if (!gameState.maxDps) gameState.maxDps = 0;
+            if (gameState.dps > gameState.maxDps) {
+                gameState.maxDps = gameState.dps;
+            }
+        }
+        
+        // Get item cost
+        function getItemCost(item) {
+            return Math.floor(item.baseCost * Math.pow(1.15, item.owned));
+        }
+        
+        // Sound effects
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+        
+        function initAudio() {
+            if (!audioCtx && soundEnabled) {
+                audioCtx = new AudioContext();
+            }
+        }
+        
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            switch(type) {
+                case 'click':
+                    oscillator.frequency.value = 800;
+                    gainNode.gain.value = 0.1;
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.05);
+                    break;
+                case 'buy':
+                    oscillator.frequency.value = 600;
+                    gainNode.gain.value = 0.15;
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.1);
+                    break;
+                case 'achievement':
+                    oscillator.frequency.value = 1000;
+                    gainNode.gain.value = 0.2;
+                    oscillator.start();
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                    break;
+                case 'success':
+                    oscillator.frequency.value = 1200;
+                    gainNode.gain.value = 0.15;
+                    oscillator.start();
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    oscillator.stop(audioCtx.currentTime + 0.2);
+                    break;
+            }
+        }
+        
+        // Vibrate
+        function vibrate(duration = 10) {
+            if (vibrateEnabled && navigator.vibrate) {
+                navigator.vibrate(duration);
+            }
+        }
+        
+        // Create floating heart
+        function createFloatingHeart(x, y, value) {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart text-2xl font-bold text-pink-500';
+            heart.textContent = `+${value}`;
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            document.body.appendChild(heart);
+            
+            setTimeout(() => {
+                heart.remove();
+            }, 2000);
+        }
+        
+        // Click heart and combo system
+        let clickTimes = [];
+        let comboCount = 0;
+        let comboTimeout = null;
+        const comboDisplay = document.getElementById('combo-display');
+        
+        document.getElementById('heart-btn').addEventListener('click', (e) => {
+            const value = gameState.clickValue * gameState.clickMultiplier;
+            gameState.hearts += value;
+            gameState.totalHearts += value;
+            gameState.totalClicks++;
+            
+            // Combo system
+            comboCount++;
+            if (comboTimeout) clearTimeout(comboTimeout);
+            
+            if (comboCount >= 5) {
+                comboDisplay.textContent = `${comboCount} COMBO! 🔥`;
+                comboDisplay.classList.remove('hidden');
+                
+                // Combo bonus
+                if (comboCount >= 10 && comboCount % 10 === 0) {
+                    const bonus = Math.floor(value * comboCount * 0.1);
+                    gameState.hearts += bonus;
+                    gameState.totalHearts += bonus;
+                    
+                    const comboNotif = document.createElement('div');
+                    comboNotif.className = 'fixed top-1/3 left-1/2 transform -translate-x-1/2 z-50 text-4xl font-bold text-orange-500 fade-in-up rainbow-effect';
+                    comboNotif.textContent = `${comboCount} COMBO! +${bonus}`;
+                    document.body.appendChild(comboNotif);
+                    setTimeout(() => comboNotif.remove(), 2000);
+                    
+                    playSound('achievement');
+                    createConfetti();
+                }
+            } else {
+                comboDisplay.classList.add('hidden');
+            }
+            
+            comboTimeout = setTimeout(() => {
+                comboCount = 0;
+                comboDisplay.classList.add('hidden');
+            }, 2000);
+            
+            // Track click speed for achievement
+            const now = Date.now();
+            clickTimes.push(now);
+            clickTimes = clickTimes.filter(t => now - t < 30000);
+            if (clickTimes.length >= 100 && !gameState.achievements.includes('speed')) {
+                gameState.achievements.push('speed');
+                showAchievement('快手玩家', '30 秒内点击 100 次');
+            }
+            
+            vibrate(10);
+            
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top;
+            
+            createFloatingHeart(x, y, value);
+            playSound('click');
+            checkAchievements();
+            updateUI();
+            checkCollections();
+            saveGame();
+            
+            // Track max hearts
+            if (gameState.hearts > gameState.maxHearts) {
+                gameState.maxHearts = gameState.hearts;
+            }
+        });
+        
+        // Auto-generate hearts
+        setInterval(() => {
+            if (gameState.dps > 0) {
+                const increment = gameState.dps / 10;
+                gameState.hearts += increment;
+                gameState.totalHearts += increment;
+                updateUI();
+                saveGame();
+            }
+        }, 100);
+        
+        // Update UI
+        function updateUI() {
+            document.getElementById('total-hearts').textContent = Math.floor(gameState.hearts).toLocaleString();
+            document.getElementById('hearts-per-second').textContent = gameState.dps.toFixed(1);
+            const finalClickValue = gameState.clickValue * gameState.clickMultiplier;
+        document.getElementById('click-value').textContent = `+${Math.floor(finalClickValue)}`;
+            
+            renderShop();
+            renderCollections();
+            renderRewards();
+            renderAchievements();
+            renderStats();
+            renderDaily();
+            renderUpgrades();
+            renderEvents();
+        }
+        
+        // Render shop
+        function renderShop() {
+            const container = document.getElementById('shop-items');
+            container.innerHTML = '';
+            
+            shopItems.forEach(item => {
+                const cost = getItemCost(item);
+                const canAfford = gameState.hearts >= cost;
+                
+                const div = document.createElement('div');
+                div.className = `card p-4 ${canAfford ? 'cursor-pointer' : 'opacity-60'}`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-pink-400 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="${item.icon}" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="font-semibold text-gray-800">${item.name}</h4>
+                                ${item.owned > 0 ? `<span class="badge">${item.owned}</span>` : ''}
+                            </div>
+                            <p class="text-xs text-gray-500 mb-2">${item.desc}</p>
+                            <div class="flex items-center gap-3 text-xs">
+                                <span class="text-pink-500 font-semibold">
+                                    <i data-lucide="heart" class="w-3 h-3 inline"></i>
+                                    ${cost.toLocaleString()}
+                                </span>
+                                <span class="text-gray-400">
+                                    +${item.baseDps}/秒
+                                </span>
+                            </div>
+                        </div>
+                        <button class="shop-buy-btn px-4 py-2 rounded-full font-semibold text-sm ${canAfford ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-400'}" data-id="${item.id}" ${!canAfford ? 'disabled' : ''}>
+                            购买
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+            
+            lucide.createIcons();
+            
+            // Add buy listeners
+            document.querySelectorAll('.shop-buy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.id;
+                    buyItem(id);
+                });
+            });
+        }
+        
+        // Buy item
+        function buyItem(id) {
+            const item = shopItems.find(i => i.id === id);
+            if (!item) return;
+            
+            const cost = getItemCost(item);
+            if (gameState.hearts < cost) return;
+            
+            gameState.hearts -= cost;
+            item.owned++;
+            gameState.items[id] = item.owned;
+            
+            calculateDPS();
+            playSound('buy');
+            checkAchievements();
+            vibrate(15);
+            updateUI();
+            saveGame();
+        }
+        
+        // Check collections
+        function checkCollections() {
+            collections.forEach(collection => {
+                if (gameState.totalHearts >= collection.threshold && 
+                    !gameState.unlockedCollections.includes(collection.threshold)) {
+                    
+                    gameState.unlockedCollections.push(collection.threshold);
+                    showModal(collection.title, collection.text);
+                    saveGame();
+                }
+            });
+        }
+        
+        // Show modal
+        function showModal(title, text) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-text').textContent = text;
+            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('modal').classList.add('flex');
+            vibrate(20);
+        }
+        
+        // Close modal
+        document.getElementById('modal-close').addEventListener('click', () => {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('modal').classList.remove('flex');
+        });
+        
+        // Render collections
+        function renderCollections() {
+            const container = document.getElementById('collections-list');
+            container.innerHTML = '';
+            
+            collections.forEach(collection => {
+                const unlocked = gameState.unlockedCollections.includes(collection.threshold);
+                const progress = Math.min((gameState.totalHearts / collection.threshold) * 100, 100);
+                
+                const div = document.createElement('div');
+                div.className = 'card p-4';
+                
+                div.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <div class="text-4xl">${unlocked ? collection.emoji : '🔒'}</div>
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 mb-1">${collection.title}</h4>
+                            <p class="text-sm text-gray-500 mb-3">${unlocked ? collection.text : '达到 ' + collection.threshold.toLocaleString() + ' 爱心解锁'}</p>
+                            <div class="w-full bg-gray-100 rounded-full h-2">
+                                <div class="progress-bar h-2" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="text-xs text-gray-400 mt-1">
+                                ${Math.floor(gameState.totalHearts).toLocaleString()} / ${collection.threshold.toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+        }
+        
+        // Render rewards
+        function renderRewards() {
+            const container = document.getElementById('rewards-list');
+            container.innerHTML = '';
+            
+            rewards.forEach(reward => {
+                const canAfford = gameState.hearts >= reward.cost;
+                const redeemed = gameState.redeemedRewards.filter(r => r.id === reward.id).length;
+                
+                const div = document.createElement('div');
+                div.className = `card p-4 ${canAfford ? 'cursor-pointer' : 'opacity-60'}`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="text-4xl">${reward.icon}</div>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <h4 class="font-semibold text-gray-800">${reward.name}</h4>
+                                ${redeemed > 0 ? `<span class="badge">已兑 ${redeemed}</span>` : ''}
+                            </div>
+                            <p class="text-sm text-gray-500 mb-2">${reward.desc}</p>
+                            <div class="text-pink-500 font-semibold text-sm">
+                                <i data-lucide="heart" class="w-4 h-4 inline"></i>
+                                ${reward.cost.toLocaleString()}
+                            </div>
+                        </div>
+                        <button class="reward-buy-btn px-4 py-2 rounded-full font-semibold text-sm ${canAfford ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-400'}" data-id="${reward.id}" ${!canAfford ? 'disabled' : ''}>
+                            兑换
+                        </button>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+            
+            lucide.createIcons();
+            
+            // Add redeem listeners
+            document.querySelectorAll('.reward-buy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.id;
+                    redeemReward(id);
+                });
+            });
+        }
+        
+        // Redeem reward
+        function redeemReward(id) {
+            const reward = rewards.find(r => r.id === id);
+            if (!reward) return;
+            
+            if (gameState.hearts < reward.cost) return;
+            
+            gameState.hearts -= reward.cost;
+            
+            const code = generateCouponCode();
+            const redemption = {
+                id: reward.id,
+                code: code,
+                date: new Date().toISOString()
+            };
+            
+            gameState.redeemedRewards.push(redemption);
+            
+            showCouponModal(reward, code);
+            playSound('success');
+            checkAchievements();
+            vibrate(20);
+            updateUI();
+            saveGame();
+        }
+        
+        // Generate coupon code
+        function generateCouponCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 12; i++) {
+                if (i > 0 && i % 4 === 0) code += '-';
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+        
+        // Show coupon modal
+        function showCouponModal(reward, code) {
+            document.getElementById('coupon-emoji').textContent = reward.icon;
+            document.getElementById('coupon-name').textContent = reward.name;
+            document.getElementById('coupon-desc').textContent = reward.desc;
+            document.getElementById('coupon-code').textContent = code;
+            
+            const date = new Date();
+            const dateStr = `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+            document.getElementById('coupon-date').textContent = dateStr;
+            
+            document.getElementById('coupon-modal').classList.remove('hidden');
+            document.getElementById('coupon-modal').classList.add('flex');
+        }
+        
+        // Close coupon modal
+        document.getElementById('coupon-close').addEventListener('click', () => {
+            document.getElementById('coupon-modal').classList.add('hidden');
+            document.getElementById('coupon-modal').classList.remove('flex');
+        });
+        
+        // Settings Modal
+        const settingsModalHtml = `
+            <div id="settings-modal" class="modal fixed inset-0 z-50 hidden items-center justify-center p-6">
+                <div class="modal-content card max-w-md w-full p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">游戏设置</h3>
+                        <button id="settings-close" class="text-gray-500">
+                            <i data-lucide="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">主题模式</h4>
+                                <p class="text-sm text-gray-500">切换日间/夜间模式</p>
+                            </div>
+                            <button id="theme-toggle" class="px-4 py-2 bg-pink-500 text-white rounded-full text-sm font-semibold">
+                                切换
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">分享进度</h4>
+                                <p class="text-sm text-gray-500">生成美图分享</p>
+                            </div>
+                            <button id="share-btn" class="px-4 py-2 bg-pink-500 text-white rounded-full text-sm font-semibold">
+                                分享
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">音效</h4>
+                                <p class="text-sm text-gray-500">点击音效反馈</p>
+                            </div>
+                            <button id="sound-toggle" class="px-4 py-2 bg-pink-500 text-white rounded-full text-sm font-semibold">
+                                开启
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h4 class="font-semibold text-gray-800">振动反馈</h4>
+                                <p class="text-sm text-gray-500">触觉反馈开关</p>
+                            </div>
+                            <button id="vibrate-toggle" class="px-4 py-2 bg-pink-500 text-white rounded-full text-sm font-semibold">
+                                开启
+                            </button>
+                        </div>
+                        
+                        <div class="border-t pt-4">
+                            <button id="export-data" class="w-full py-3 bg-gray-100 text-gray-800 rounded-full font-semibold mb-2">
+                                导出存档
+                            </button>
+                            <button id="import-data" class="w-full py-3 bg-gray-100 text-gray-800 rounded-full font-semibold mb-2">
+                                导入存档
+                            </button>
+                            <button id="reset-game" class="w-full py-3 bg-red-100 text-red-600 rounded-full font-semibold">
+                                重置游戏
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', settingsModalHtml);
+        
+        // Settings functionality
+        document.getElementById('settings-btn').addEventListener('click', () => {
+            document.getElementById('settings-modal').classList.remove('hidden');
+            document.getElementById('settings-modal').classList.add('flex');
+            lucide.createIcons();
+        });
+        
+        document.getElementById('settings-close').addEventListener('click', () => {
+            document.getElementById('settings-modal').classList.add('hidden');
+            document.getElementById('settings-modal').classList.remove('flex');
+        });
+        
+        document.getElementById('theme-toggle').addEventListener('click', () => {
+            document.body.classList.toggle('theme-dark');
+            const isDark = document.body.classList.contains('theme-dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            vibrate(5);
+        });
+        
+        let soundEnabled = localStorage.getItem('sound') !== 'false';
+        const soundToggle = document.getElementById('sound-toggle');
+        soundToggle.textContent = soundEnabled ? '开启' : '关闭';
+        soundToggle.addEventListener('click', (e) => {
+            soundEnabled = !soundEnabled;
+            e.target.textContent = soundEnabled ? '开启' : '关闭';
+            localStorage.setItem('sound', soundEnabled);
+            if (soundEnabled) playSound('click');
+            vibrate(5);
+        });
+        
+        let vibrateEnabled = localStorage.getItem('vibrate') !== 'false';
+        const vibrateToggle = document.getElementById('vibrate-toggle');
+        vibrateToggle.textContent = vibrateEnabled ? '开启' : '关闭';
+        vibrateToggle.addEventListener('click', (e) => {
+            vibrateEnabled = !vibrateEnabled;
+            e.target.textContent = vibrateEnabled ? '开启' : '关闭';
+            localStorage.setItem('vibrate', vibrateEnabled);
+        });
+        
+        document.getElementById('export-data').addEventListener('click', () => {
+            const data = JSON.stringify(gameState);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'parallel-universe-save.json';
+            a.click();
+            vibrate(15);
+        });
+        
+        document.getElementById('import-data').addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        gameState = data;
+                        saveGame();
+                        location.reload();
+                    } catch (err) {
+                        alert('存档文件无效');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        });
+        
+        document.getElementById('share-btn').addEventListener('click', () => {
+            generateShareImage();
+            vibrate(10);
+        });
+        
+        document.getElementById('reset-game').addEventListener('click', () => {
+            if (confirm('确定要重置游戏吗？这将删除所有进度！')) {
+                localStorage.clear();
+                location.reload();
+            }
+        });
+        
+        // Load theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('theme-dark');
+        }
+        
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                
+                // Update button styles
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('tab-active');
+                    b.classList.add('tab-inactive');
+                });
+                btn.classList.remove('tab-inactive');
+                btn.classList.add('tab-active');
+                
+                // Show/hide content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(`${tab}-tab`).classList.remove('hidden');
+                
+                vibrate(5);
+            });
+        });
+        
+        // Check achievements
+        function checkAchievements() {
+            achievements.forEach(ach => {
+                if (!gameState.achievements.includes(ach.id) && ach.condition()) {
+                    gameState.achievements.push(ach.id);
+                    showAchievement(ach.name, ach.desc);
+                    playSound('achievement');
+                    createConfetti();
+                    vibrate(30);
+                }
+            });
+        }
+        
+        // Show achievement notification
+        function showAchievement(title, desc) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 z-50 card p-4 fade-in-up';
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">🏆</div>
+                    <div>
+                        <div class="font-bold text-gray-800">${title}</div>
+                        <div class="text-sm text-gray-600">${desc}</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        }
+        
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#FFB6C1', '#FFC0CB', '#FF69B4', '#FFD700', '#FFA500'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+        
+        // Render achievements
+        function renderAchievements() {
+            const container = document.getElementById('achievements-list');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const unlocked = achievements.filter(a => gameState.achievements.includes(a.id));
+            const locked = achievements.filter(a => !gameState.achievements.includes(a.id));
+            
+            if (unlocked.length > 0) {
+                const unlockedDiv = document.createElement('div');
+                unlockedDiv.innerHTML = '<h3 class="text-lg font-bold text-gray-800 mb-3">已解锁 (' + unlocked.length + '/' + achievements.length + ')</h3>';
+                container.appendChild(unlockedDiv);
+                
+                unlocked.forEach(ach => {
+                    const div = document.createElement('div');
+                    div.className = 'card p-4 achievement-badge';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl">${ach.icon}</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800">${ach.name}</h4>
+                                <p class="text-sm text-gray-500">${ach.desc}</p>
+                            </div>
+                            <div class="text-2xl">✅</div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+            
+            if (locked.length > 0) {
+                const lockedDiv = document.createElement('div');
+                lockedDiv.innerHTML = '<h3 class="text-lg font-bold text-gray-800 mt-6 mb-3">未解锁</h3>';
+                container.appendChild(lockedDiv);
+                
+                locked.forEach(ach => {
+                    const div = document.createElement('div');
+                    div.className = 'card p-4 opacity-60';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl grayscale">🔒</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800">${ach.name}</h4>
+                                <p class="text-sm text-gray-500">${ach.desc}</p>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        }
+        
+        // Render stats
+        function renderStats() {
+            const container = document.getElementById('stats-content');
+            if (!container) return;
+            
+            const playTimeHours = (gameState.playTime / 3600).toFixed(1);
+            const avgDps = gameState.totalHearts / Math.max(1, gameState.playTime);
+            const clickPercent = gameState.totalClicks > 0 ? ((gameState.totalClicks / gameState.totalHearts) * 100).toFixed(1) : 0;
+            
+            container.innerHTML = `
+                <div class="card p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">📊 游戏统计</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">累计爱心</span>
+                            <span class="font-bold text-pink-500">${Math.floor(gameState.totalHearts).toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">累计点击</span>
+                            <span class="font-bold text-pink-500">${gameState.totalClicks.toLocaleString()}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">当前每秒产出</span>
+                            <span class="font-bold text-pink-500">${gameState.dps.toFixed(1)}/s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">平均每秒产出</span>
+                            <span class="font-bold text-pink-500">${avgDps.toFixed(1)}/s</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">游戏时长</span>
+                            <span class="font-bold text-pink-500">${playTimeHours} 小时</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">连续登录</span>
+                            <span class="font-bold text-pink-500">${gameState.loginStreak} 天</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">解锁回忆</span>
+                            <span class="font-bold text-pink-500">${gameState.unlockedCollections.length}/${collections.length}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">解锁成就</span>
+                            <span class="font-bold text-pink-500">${gameState.achievements.length}/${achievements.length}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">已兑换券</span>
+                            <span class="font-bold text-pink-500">${gameState.redeemedRewards.length}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">场景装饰</span>
+                            <span class="font-bold text-pink-500">${Object.values(gameState.items).reduce((a, b) => a + b, 0)}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">工资峰值</span>
+                            <span class="font-bold text-pink-500">${Math.floor(gameState.maxHearts).toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-6 mt-4">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">🏆 成就排行</h3>
+                    <div class="space-y-2">
+                        ${achievements.filter(a => gameState.achievements.includes(a.id)).sort((a, b) => {
+                            const aIndex = gameState.achievements.indexOf(a.id);
+                            const bIndex = gameState.achievements.indexOf(b.id);
+                            return aIndex - bIndex;
+                        }).slice(0, 5).map((ach, i) => `
+                            <div class="flex items-center gap-3 p-2 bg-gradient-to-r from-pink-50 to-transparent rounded-lg">
+                                <div class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                    ${i + 1}
+                                </div>
+                                <div class="text-xl">${ach.icon}</div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-semibold text-gray-700">${ach.name}</div>
+                                    <div class="text-xs text-gray-500">${ach.desc}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3 text-center">显示最近解锁的 5 个成就</p>
+                </div>
+                
+                <div class="card p-6 mt-4">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">📊 个人纪录</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">🏆</div>
+                                <div>
+                                    <div class="font-semibold text-gray-800 text-sm">效率之王</div>
+                                    <div class="text-xs text-gray-500">最高每秒产出</div>
+                                </div>
+                            </div>
+                            <div class="font-bold text-orange-600">${(gameState.maxDps || gameState.dps).toFixed(1)}/s</div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">⚡</div>
+                                <div>
+                                    <div class="font-semibold text-gray-800 text-sm">点击狂人</div>
+                                    <div class="text-xs text-gray-500">单次点击最高产出</div>
+                                </div>
+                            </div>
+                            <div class="font-bold text-indigo-600">+${Math.floor(gameState.clickValue * gameState.clickMultiplier)}</div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">💰</div>
+                                <div>
+                                    <div class="font-semibold text-gray-800 text-sm">财富巅峰</div>
+                                    <div class="text-xs text-gray-500">历史最高爱心数</div>
+                                </div>
+                            </div>
+                            <div class="font-bold text-emerald-600">${Math.floor(gameState.maxHearts).toLocaleString()}</div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">🎯</div>
+                                <div>
+                                    <div class="font-semibold text-gray-800 text-sm">成就猎人</div>
+                                    <div class="text-xs text-gray-500">成就完成度</div>
+                                </div>
+                            </div>
+                            <div class="font-bold text-purple-600">${Math.floor(gameState.achievements.length / achievements.length * 100)}%</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-6 mt-4">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">💕 回忆进度</h3>
+                    <div class="space-y-2">
+                        ${collections.map(col => {
+                            const unlocked = gameState.unlockedCollections.includes(col.threshold);
+                            const progress = Math.min((gameState.totalHearts / col.threshold) * 100, 100);
+                            return `
+                                <div class="flex items-center gap-3">
+                                    <div class="text-2xl">${unlocked ? col.emoji : '🔒'}</div>
+                                    <div class="flex-1">
+                                        <div class="text-sm font-semibold text-gray-700">${col.title}</div>
+                                        <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                            <div class="progress-bar h-1.5" style="width: ${progress}%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-gray-500">${progress.toFixed(0)}%</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Render daily check-in
+        function renderDaily() {
+            const container = document.getElementById('daily-content');
+            if (!container) return;
+            
+            const today = new Date().toDateString();
+            const hasCheckedToday = gameState.dailyCheckins.includes(today);
+            const consecutiveDays = gameState.loginStreak;
+            
+            const rewards = [
+                { day: 1, hearts: 500, bonus: '新手奖励' },
+                { day: 2, hearts: 600, bonus: '' },
+                { day: 3, hearts: 800, bonus: '' },
+                { day: 4, hearts: 1000, bonus: '' },
+                { day: 5, hearts: 1500, bonus: '' },
+                { day: 6, hearts: 2000, bonus: '' },
+                { day: 7, hearts: 5000, bonus: '🎁 一周奖励' }
+            ];
+            
+            container.innerHTML = `
+                <div class="card p-6 text-center">
+                    <div class="w-20 h-20 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="calendar-heart" class="w-10 h-10 text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">每日签到</h3>
+                    <p class="text-gray-600 mb-4">连续签到 ${consecutiveDays} 天</p>
+                    
+                    ${!hasCheckedToday ? `
+                        <button id="checkin-btn" class="w-full py-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-full font-bold text-lg mb-6 pulse-animation">
+                            立即签到 🎁
+                        </button>
+                    ` : `
+                        <div class="py-4 bg-gray-100 rounded-full mb-6">
+                            <p class="text-gray-600">✅ 今日已签到</p>
+                            <p class="text-sm text-gray-500 mt-1">明天再来吧~</p>
+                        </div>
+                    `}
+                    
+                    <div class="grid grid-cols-7 gap-2">
+                        ${rewards.map((r, i) => {
+                            const isActive = consecutiveDays >= r.day;
+                            const isCurrent = consecutiveDays + 1 === r.day && !hasCheckedToday;
+                            return `
+                                <div class="${isActive ? 'bg-pink-100' : 'bg-gray-100'} ${isCurrent ? 'ring-2 ring-pink-500' : ''} rounded-lg p-2 text-center">
+                                    <div class="text-xs font-bold ${isActive ? 'text-pink-600' : 'text-gray-400'}">Day ${r.day}</div>
+                                    <div class="text-lg mt-1">${isActive ? '✅' : '📅'}</div>
+                                    <div class="text-xs text-gray-600 mt-1">${r.hearts}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    
+                    ${consecutiveDays >= 7 ? `
+                        <div class="mt-6 p-4 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl">
+                            <p class="text-sm font-semibold text-gray-800">🎉 恭喜完成一周签到！</p>
+                            <p class="text-xs text-gray-600 mt-1">继续保持，获得更多奖励</p>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="card p-6 mt-4">
+                    <h4 class="font-bold text-gray-800 mb-3">签到历史</h4>
+                    <div class="text-sm text-gray-600">
+                        总签到天数: <span class="font-bold text-pink-500">${gameState.dailyCheckins.length}</span> 天
+                    </div>
+                    <div class="text-xs text-gray-500 mt-2">
+                        上次签到: ${gameState.dailyCheckins.length > 0 ? gameState.dailyCheckins[gameState.dailyCheckins.length - 1] : '暂无记录'}
+                    </div>
+                </div>
+            `;
+            
+            lucide.createIcons();
+            
+            // Add check-in listener
+            const checkinBtn = document.getElementById('checkin-btn');
+            if (checkinBtn) {
+                checkinBtn.addEventListener('click', () => {
+                    const dayReward = [500, 600, 800, 1000, 1500, 2000, 5000];
+                    const rewardIndex = Math.min(consecutiveDays, 6);
+                    const reward = dayReward[rewardIndex];
+                    
+                    gameState.hearts += reward;
+                    gameState.totalHearts += reward;
+                    gameState.dailyCheckins.push(today);
+                    gameState.loginStreak++;
+                    
+                    createConfetti();
+                    playSound('success');
+                    vibrate(30);
+                    showModal('签到成功！', `获得 ${reward} 爱心奖励！\n连续签到 ${gameState.loginStreak} 天`);
+                    checkAchievements();
+                    saveGame();
+                    updateUI();
+                });
+            }
+        }
+        
+        // Check login streak and offline earnings
+        function checkLoginStreak() {
+            const now = Date.now();
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+            
+            // Calculate offline earnings
+            if (gameState.lastLoginTime && gameState.offlineBonus) {
+                const offlineTime = now - gameState.lastLoginTime;
+                const offlineHours = offlineTime / (1000 * 60 * 60);
+                
+                if (offlineHours > 0.1 && offlineHours < 24) {
+                    const offlineEarnings = Math.floor(gameState.dps * (offlineTime / 1000) * 0.5);
+                    
+                    if (offlineEarnings > 0) {
+                        gameState.hearts += offlineEarnings;
+                        gameState.totalHearts += offlineEarnings;
+                        
+                        showModal('💰 离线收益', `你离开了 ${offlineHours.toFixed(1)} 小时\n获得 ${offlineEarnings.toLocaleString()} 爱心！`);
+                        playSound('success');
+                        createConfetti();
+                    }
+                }
+            }
+            
+            gameState.lastLoginTime = now;
+            
+            if (!gameState.lastLogin) {
+                gameState.lastLogin = today;
+                gameState.loginStreak = 1;
+            } else if (gameState.lastLogin === yesterday) {
+                gameState.lastLogin = today;
+            } else if (gameState.lastLogin !== today) {
+                gameState.loginStreak = 0;
+                gameState.lastLogin = today;
+            }
+            
+            saveGame();
+        }
+        
+        // Track play time
+        setInterval(() => {
+            gameState.playTime++;
+            if (gameState.playTime % 60 === 0) {
+                checkAchievements();
+                saveGame();
+            }
+        }, 1000);
+        
+        // Generate share image
+        function generateShareImage() {
+            const modal = document.createElement('div');
+            modal.className = 'modal fixed inset-0 z-50 flex items-center justify-center p-6';
+            modal.innerHTML = `
+                <div class="modal-content card max-w-md w-full p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">📸 分享我的进度</h3>
+                    
+                    <div id="share-card" class="bg-gradient-to-br from-pink-100 to-pink-200 rounded-2xl p-6 mb-4">
+                        <div class="text-center mb-4">
+                            <h2 class="text-2xl font-bold text-gray-800">💕 我们的平行时空</h2>
+                            <p class="text-sm text-gray-600 mt-1">与你共度的每一秒</p>
+                        </div>
+                        
+                        <div class="bg-white/80 rounded-xl p-4 space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">总爱心</span>
+                                <span class="font-bold text-pink-600">${Math.floor(gameState.totalHearts).toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">点击次数</span>
+                                <span class="font-bold text-pink-600">${gameState.totalClicks.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">每秒产出</span>
+                                <span class="font-bold text-pink-600">${gameState.dps.toFixed(1)}/s</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">解锁成就</span>
+                                <span class="font-bold text-pink-600">${gameState.achievements.length}/${achievements.length}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">连续签到</span>
+                                <span class="font-bold text-pink-600">${gameState.loginStreak} 天</span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4 text-xs text-gray-600">
+                            ${new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-gray-600 text-center mb-4">请截图保存并分享给她 💕</p>
+                    
+                    <button id="close-share" class="w-full py-3 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-full font-semibold">
+                        关闭
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            document.getElementById('close-share').addEventListener('click', () => {
+                modal.remove();
+            });
+        }
+        
+        // Secret code system
+        let secretInput = '';
+        let secretTimeout = null;
+        
+        document.addEventListener('keypress', (e) => {
+            secretInput += e.key.toLowerCase();
+            
+            if (secretTimeout) clearTimeout(secretTimeout);
+            secretTimeout = setTimeout(() => { secretInput = ''; }, 3000);
+            
+            // Secret codes
+            if (secretInput.includes('love')) {
+                secretInput = '';
+                const bonus = Math.floor(gameState.totalHearts * 0.5);
+                gameState.hearts += bonus;
+                gameState.totalHearts += bonus;
+                showModal('💝 秘密代码', `LOVE 代码激活！\n获得 ${bonus.toLocaleString()} 爱心！`);
+                playSound('achievement');
+                createConfetti();
+            } else if (secretInput.includes('forever')) {
+                secretInput = '';
+                gameState.clickMultiplier *= 2;
+                gameState.dpsMultiplier *= 2;
+                calculateDPS();
+                showModal('♾️ 永恒', 'FOREVER 代码激活！\n所有产出永久翻倍！');
+                playSound('achievement');
+                createConfetti();
+            } else if (secretInput.includes('520')) {
+                secretInput = '';
+                gameState.hearts += 520;
+                gameState.totalHearts += 520;
+                showModal('💕 我爱你', '520 代码激活！\n获得 520 爱心！');
+                playSound('success');
+            } else if (secretInput.includes('1314')) {
+                secretInput = '';
+                gameState.hearts += 1314;
+                gameState.totalHearts += 1314;
+                showModal('💖 一生一世', '1314 代码激活！\n获得 1314 爱心！');
+                playSound('success');
+            }
+            
+            updateUI();
+            saveGame();
+        });
+        
+        // Long press on heart for surprise
+        let pressTimer = null;
+        const heartBtn = document.getElementById('heart-btn');
+        
+        heartBtn.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                pressTimer = setTimeout(() => {
+                    const surprise = Math.floor(gameState.dps * 100);
+                    if (surprise > 0) {
+                        gameState.hearts += surprise;
+                        gameState.totalHearts += surprise;
+                        showModal('✨ 长按奖励', `发现隐藏技巧！\n获得 ${surprise.toLocaleString()} 爱心！`);
+                        playSound('achievement');
+                        createConfetti();
+                        vibrate(50);
+                        updateUI();
+                        saveGame();
+                    }
+                }, 3000);
+            }
+        });
+        
+        heartBtn.addEventListener('touchend', () => {
+            if (pressTimer) {
+                clearTimeout(pressTimer);
+                pressTimer = null;
+            }
+        });
+        
+        heartBtn.addEventListener('touchmove', () => {
+            if (pressTimer) {
+                clearTimeout(pressTimer);
+                pressTimer = null;
+            }
+        });
+        
+        // Shake detection for mobile
+        if (window.DeviceMotionEvent) {
+            let lastShake = 0;
+            window.addEventListener('devicemotion', (e) => {
+                const acc = e.accelerationIncludingGravity;
+                const now = Date.now();
+                
+                if (acc && now - lastShake > 1000) {
+                    const movement = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
+                    
+                    if (movement > 30) {
+                        lastShake = now;
+                        const bonus = Math.floor(gameState.dps * 10);
+                        if (bonus > 0) {
+                            gameState.hearts += bonus;
+                            gameState.totalHearts += bonus;
+                            
+                            const shake = document.createElement('div');
+                            shake.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 z-50 card p-4 fade-in-up';
+                            shake.innerHTML = `
+                                <div class="text-center">
+                                    <div class="text-3xl mb-2">🎉</div>
+                                    <div class="font-bold text-gray-800">摇一摇奖励！</div>
+                                    <div class="text-pink-500">+${bonus.toLocaleString()}</div>
+                                </div>
+                            `;
+                            document.body.appendChild(shake);
+                            setTimeout(() => shake.remove(), 2000);
+                            
+                            playSound('success');
+                            vibrate(20);
+                            updateUI();
+                            saveGame();
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Random lucky event
+        setInterval(() => {
+            if (Math.random() < 0.001 && !gameState.luckyFound) {
+                gameState.luckyFound = true;
+                gameState.hearts += 5201314;
+                gameState.totalHearts += 5201314;
+                gameState.achievements.push('lucky');
+                showModal('🍀 幸运降临！', '恭喜触发隐藏彩蛋！\n获得 5201314 爱心（我爱你一生一世）！');
+                playSound('achievement');
+                createConfetti();
+                checkAchievements();
+                saveGame();
+            }
+        }, 10000);
+        
+        // Render upgrades
+        function renderUpgrades() {
+            const container = document.getElementById('upgrades-list');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const purchased = upgrades.filter(u => gameState.upgrades[u.id]);
+            const available = upgrades.filter(u => !gameState.upgrades[u.id] && u.req());
+            const locked = upgrades.filter(u => !gameState.upgrades[u.id] && !u.req());
+            
+            if (purchased.length > 0) {
+                container.innerHTML += '<h3 class="text-lg font-bold text-gray-800 mb-3">✅ 已购买 (' + purchased.length + ')</h3>';
+                purchased.forEach(upgrade => {
+                    const div = document.createElement('div');
+                    div.className = 'card p-4';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl">${upgrade.icon}</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800">${upgrade.name}</h4>
+                                <p class="text-sm text-gray-500">${upgrade.desc}</p>
+                            </div>
+                            <div class="text-2xl">✅</div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+            
+            if (available.length > 0) {
+                const h3 = document.createElement('h3');
+                h3.className = 'text-lg font-bold text-gray-800 mt-6 mb-3';
+                h3.textContent = '🛒 可购买 (' + available.length + ')';
+                container.appendChild(h3);
+                
+                available.forEach(upgrade => {
+                    const canAfford = gameState.hearts >= upgrade.cost;
+                    const div = document.createElement('div');
+                    div.className = `card p-4 ${canAfford ? '' : 'opacity-60'}`;
+                    div.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl">${upgrade.icon}</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800">${upgrade.name}</h4>
+                                <p class="text-sm text-gray-500 mb-2">${upgrade.desc}</p>
+                                <div class="text-pink-500 font-semibold text-sm">
+                                    <i data-lucide="heart" class="w-4 h-4 inline"></i>
+                                    ${upgrade.cost.toLocaleString()}
+                                </div>
+                            </div>
+                            <button class="upgrade-buy-btn px-4 py-2 rounded-full font-semibold text-sm ${canAfford ? 'bg-pink-500 text-white' : 'bg-gray-200 text-gray-400'}" data-id="${upgrade.id}">
+                                购买
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+            
+            if (locked.length > 0) {
+                const h3 = document.createElement('h3');
+                h3.className = 'text-lg font-bold text-gray-800 mt-6 mb-3';
+                h3.textContent = '🔒 未解锁 (' + locked.length + ')';
+                container.appendChild(h3);
+                
+                locked.forEach(upgrade => {
+                    const div = document.createElement('div');
+                    div.className = 'card p-4 opacity-50';
+                    div.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="text-4xl">🔒</div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800">${upgrade.name}</h4>
+                                <p class="text-sm text-gray-500">需要先购买其他升级</p>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+            
+            lucide.createIcons();
+            
+            document.querySelectorAll('.upgrade-buy-btn').forEach(btn => {
+                btn.addEventListener('click', () => buyUpgrade(btn.dataset.id));
+            });
+        }
+        
+        // Buy upgrade
+        function buyUpgrade(id) {
+            const upgrade = upgrades.find(u => u.id === id);
+            if (!upgrade || gameState.upgrades[id]) return;
+            if (gameState.hearts < upgrade.cost || !upgrade.req()) return;
+            
+            gameState.hearts -= upgrade.cost;
+            gameState.upgrades[id] = true;
+            upgrade.effect();
+            
+            playSound('buy');
+            createConfetti();
+            vibrate(20);
+            checkAchievements();
+            updateUI();
+            saveGame();
+        }
+        
+        // Render events
+        function renderEvents() {
+            const container = document.getElementById('events-content');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div class="card p-6">
+                    <div class="text-center mb-6">
+                        <div class="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="sparkles" class="w-10 h-10 text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">✨ 特殊事件</h3>
+                        <p class="text-gray-600">随机触发的惊喜时刻</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">💝</div>
+                                <div class="flex-1">
+                                    <h5 class="font-semibold text-gray-800 text-sm">爱心暴击</h5>
+                                    <p class="text-xs text-gray-500">点击产出 x5，持续 5 分钟</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">🌈</div>
+                                <div class="flex-1">
+                                    <h5 class="font-semibold text-gray-800 text-sm">彩虹祝福</h5>
+                                    <p class="text-xs text-gray-500">所有产出 x3，持续 10 分钟</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">🎁</div>
+                                <div class="flex-1">
+                                    <h5 class="font-semibold text-gray-800 text-sm">神秘礼物</h5>
+                                    <p class="text-xs text-gray-500">随机获得大量爱心</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">⭐</div>
+                                <div class="flex-1">
+                                    <h5 class="font-semibold text-gray-800 text-sm">流星雨</h5>
+                                    <p class="text-xs text-gray-500">持续掉落爱心，持续 3 分钟</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl">
+                        <p class="text-xs text-gray-600 text-center">
+                            💡 提示：事件会随机触发，保持在线可以获得更多奖励！
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            lucide.createIcons();
+        }
+        
+        // Random event trigger system
+        setInterval(() => {
+            const chance = gameState.luckyBonus ? 0.005 : 0.003;
+            if (Math.random() < chance) {
+                triggerRandomEvent();
+            }
+        }, 60000);
+        
+        function triggerRandomEvent() {
+            const events = ['critical', 'rainbow', 'gift', 'meteor'];
+            const event = events[Math.floor(Math.random() * events.length)];
+            
+            switch(event) {
+                case 'critical':
+                    const oldClickMult = gameState.clickMultiplier;
+                    gameState.clickMultiplier *= 5;
+                    showModal('💝 爱心暴击！', '点击产出 x5，持续 5 分钟！');
+                    setTimeout(() => { gameState.clickMultiplier = oldClickMult; updateUI(); }, 300000);
+                    break;
+                    
+                case 'rainbow':
+                    const oldClick = gameState.clickMultiplier;
+                    const oldDps = gameState.dpsMultiplier;
+                    gameState.clickMultiplier *= 3;
+                    gameState.dpsMultiplier *= 3;
+                    calculateDPS();
+                    showModal('🌈 彩虹祝福！', '所有产出 x3，持续 10 分钟！');
+                    setTimeout(() => { 
+                        gameState.clickMultiplier = oldClick; 
+                        gameState.dpsMultiplier = oldDps; 
+                        calculateDPS();
+                        updateUI(); 
+                    }, 600000);
+                    break;
+                    
+                case 'gift':
+                    const gift = Math.floor(gameState.totalHearts * 0.1 + 5000);
+                    gameState.hearts += gift;
+                    gameState.totalHearts += gift;
+                    showModal('🎁 神秘礼物！', `收到了 ${gift.toLocaleString()} 爱心礼物！`);
+                    break;
+                    
+                case 'meteor':
+                    showModal('⭐ 流星雨！', '持续掉落爱心，持续 3 分钟！');
+                    const meteorInterval = setInterval(() => {
+                        const drop = Math.floor(gameState.dps * 3);
+                        gameState.hearts += drop;
+                        gameState.totalHearts += drop;
+                        
+                        const x = Math.random() * window.innerWidth;
+                        const star = document.createElement('div');
+                        star.className = 'floating-heart text-2xl';
+                        star.textContent = '⭐';
+                        star.style.left = x + 'px';
+                        star.style.top = '0px';
+                        document.body.appendChild(star);
+                        setTimeout(() => star.remove(), 2000);
+                        
+                        updateUI();
+                    }, 3000);
+                    setTimeout(() => clearInterval(meteorInterval), 180000);
+                    break;
+            }
+            
+            playSound('achievement');
+            createConfetti();
+            vibrate(30);
+            updateUI();
+        }
+        
+        // Tutorial system
+        function showTutorial() {
+            if (gameState.tutorialCompleted) return;
+            
+            const tutorial = document.createElement('div');
+            tutorial.className = 'modal fixed inset-0 z-[100] flex items-center justify-center p-6';
+            tutorial.innerHTML = `
+                <div class="modal-content card max-w-md w-full p-8">
+                    <div class="text-center mb-6">
+                        <div class="text-6xl mb-4">💕</div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">欢迎来到平行时空</h2>
+                        <p class="text-gray-600">让我们一起开始这段美好的旅程</p>
+                    </div>
+                    
+                    <div class="space-y-4 text-left mb-6">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">1</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">点击爱心</h4>
+                                <p class="text-sm text-gray-600">点击中间的大爱心按钮收集爱心值</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">2</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">购买装饰</h4>
+                                <p class="text-sm text-gray-600">用爱心购买场景装饰，提升自动产出</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">3</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">解锁内容</h4>
+                                <p class="text-sm text-gray-600">收集回忆、解锁成就、兑换礼物券</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 bg-pink-500 text-white rounded-full flex items-center justify-center font-bold flex-shrink-0">4</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">每日签到</h4>
+                                <p class="text-sm text-gray-600">每天登录签到获取额外奖励</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="tutorial-start" class="w-full py-3 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-full font-bold text-lg">
+                        开始游戏 💖
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(tutorial);
+            
+            document.getElementById('tutorial-start').addEventListener('click', () => {
+                gameState.tutorialCompleted = true;
+                saveGame();
+                tutorial.remove();
+                
+                // Give starting bonus
+                gameState.hearts = 100;
+                gameState.totalHearts = 100;
+                updateUI();
+                saveGame();
+                
+                showModal('🎁 新手礼包', '获得 100 爱心作为起始资金！\n快去购买第一个场景装饰吧~');
+            });
+        }
+        
+        // Loading animation
+        const loader = document.createElement('div');
+        loader.className = 'fixed inset-0 z-[200] bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center';
+        loader.innerHTML = `
+            <div class="text-center">
+                <div class="relative inline-block mb-6">
+                    <div class="w-24 h-24 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full animate-ping absolute"></div>
+                    <div class="w-24 h-24 bg-gradient-to-br from-pink-400 to-pink-500 rounded-full flex items-center justify-center relative">
+                        <span class="text-5xl">💕</span>
+                    </div>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">我们的平行时空</h2>
+                <p class="text-gray-600 text-lg">正在加载中...</p>
+                <div class="mt-4 flex justify-center gap-2">
+                    <div class="w-3 h-3 bg-pink-500 rounded-full animate-bounce"></div>
+                    <div class="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                    <div class="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(loader);
+        
+        // Initialize
+        setTimeout(() => {
+            lucide.createIcons();
+            loadGame();
+            checkLoginStreak();
+            checkAchievements();
+            updateUI();
+            
+            loader.style.opacity = '0';
+            loader.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                loader.remove();
+                
+                // Show tutorial for first-time users
+                if (!gameState.tutorialCompleted) {
+                    setTimeout(() => showTutorial(), 500);
+                }
+            }, 500);
+        }, 1500);
+        
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                e.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+    </script>
+</body>
+</html>
